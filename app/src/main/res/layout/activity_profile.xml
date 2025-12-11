@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <!-- E-posta (sadece gösterim) -->
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Profilim"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvEmailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="124dp"
+            android:text="E-posta"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="email@example.com"
+            app:layout_constraintTop_toBottomOf="@id/tvEmailLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Ad -->
+        <TextView
+            android:id="@+id/tvNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ad"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvEmail"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Ad"
+            app:layout_constraintTop_toBottomOf="@id/tvNameLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Soyad -->
+
+        <TextView
+            android:id="@+id/tvSurnameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="52dp"
+            android:text="Soyad"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/etName" />
+
+        <EditText
+            android:id="@+id/etSurname"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Soyad"
+            app:layout_constraintTop_toBottomOf="@id/tvSurnameLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- İl -->
+        <TextView
+            android:id="@+id/tvCityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="İl"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/etSurname"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/etCity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="İl"
+            app:layout_constraintTop_toBottomOf="@id/tvCityLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- İlçe -->
+        <TextView
+            android:id="@+id/tvDistrictLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="İlçe"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/etCity"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/etDistrict"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="İlçe"
+            app:layout_constraintTop_toBottomOf="@id/tvDistrictLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Telefon -->
+        <TextView
+            android:id="@+id/tvPhoneLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Telefon"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/etDistrict"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Telefon"
+            android:inputType="phone"
+            app:layout_constraintTop_toBottomOf="@id/tvPhoneLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Kaydet butonu -->
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Bilgileri Kaydet"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/etPhone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Şifre değiştir -->
+        <Button
+            android:id="@+id/btnChangePassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Şifre Değiştir"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/btnSave"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Hesabı pasifleştir -->
+        <Button
+            android:id="@+id/btnDeactivate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Hesabımı Pasifleştir"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/btnChangePassword"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Çıkış -->
+
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Çıkış Yap"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnDeactivate"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <ImageView
+            android:id="@+id/imgProfile"
+            android:layout_width="70dp"
+            android:layout_height="59dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            android:contentDescription="Profil Fotoğrafı"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <Button
+            android:id="@+id/btnChangePhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Fotoğrafı Değiştir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgProfile" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
