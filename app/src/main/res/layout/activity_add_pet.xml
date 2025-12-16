@@ -1,20 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".AddPetActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- YENİ: Fotoğraf Önizlemesi için ImageView -->
+        <ImageView
+            android:id="@+id/ivPetPhotoPreview"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
+
+        <!-- Pet Info -->
         <EditText
             android:id="@+id/etName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Hayvan Adı"
-            app:layout_constraintTop_toTopOf="parent"
+            android:hint="Hayvanın Adı"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/ivPetPhotoPreview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -23,102 +40,94 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/etName" />
+            app:layout_constraintTop_toBottomOf="@+id/etName" />
 
         <EditText
             android:id="@+id/etBreed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Alt Tür (Kangal Köpeği, Van Kedisi...)"
-            app:layout_constraintTop_toBottomOf="@id/spType"
+            android:hint="Cinsi (örn: Tekir)"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/spType"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
             android:id="@+id/etAge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Yaş"
+            android:hint="Yaşı"
             android:inputType="number"
-            app:layout_constraintTop_toBottomOf="@id/etBreed"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/etBreed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
-            android:id="@+id/etWeight"
+            android:id="@+id/etDesc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Kilo (kg)"
-            android:inputType="numberDecimal"
-            app:layout_constraintTop_toBottomOf="@id/etAge"
+            android:hint="Ek Açıklamalar (Karakteri, alışkanlıkları vb.)"
+            android:inputType="textMultiLine"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/etAge"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
             android:id="@+id/etCity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Şehir"
-            app:layout_constraintTop_toBottomOf="@id/etWeight"
+            android:hint="Şehir (Haritayı ortalamak için)"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/etDesc"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <EditText
-            android:id="@+id/etDistrict"
+        <!-- Action Buttons -->
+        <Button
+            android:id="@+id/btnSelectPhoto"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="İlçe"
-            android:inputType="textMultiLine"
-            app:layout_constraintTop_toBottomOf="@id/etCity"
+            android:text="1. Fotoğraf Seç"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/etCity"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
-        <EditText
-            android:id="@+id/etDesc"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btnSelectLocation"
+            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Açıklama"
-            android:inputType="textMultiLine"
-            app:layout_constraintTop_toBottomOf="@id/etDistrict"
+            android:text="2. Haritadan Konum Seç"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/btnSelectPhoto"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
+        
+        <TextView
+            android:id="@+id/tvSelectedLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/btnSelectLocation"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Konum: 41.01, 28.97"
+            tools:visibility="visible"/>
+
         <Button
             android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="İlanı Kaydet"
-            app:layout_constraintTop_toBottomOf="@id/etDesc"
+            android:text="3. İlanı Kaydet ve Onaya Gönder"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/tvSelectedLocation"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-        <Button
-            android:id="@+id/btnSelectLocation"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Yer Seç"
-            app:layout_constraintTop_toBottomOf="@id/btnSave"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-        <Button
-            android:id="@+id/btnSelectPhoto"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Fotoğraf Seç"
-            app:layout_constraintTop_toBottomOf="@id/btnSelectLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" />
-
-
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

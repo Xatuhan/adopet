@@ -1,215 +1,173 @@
 package com.example.adopet
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.widget.*
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.adopet.utils.PinataUploader
-
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.example.adopet.BuildConfig
 
 class AddPetActivity : AppCompatActivity() {
 
-    // 🔑 SADECE JWT BURAYA GELECEK (API key / secret DEĞİL)
-    companion object {
-        val uploader = PinataUploader(BuildConfig.PINATA_JWT)
-    // Örnek: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
+    private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
 
+    // Views
+    private lateinit var ivPetPhotoPreview: ImageView
     private lateinit var etName: EditText
     private lateinit var spType: Spinner
     private lateinit var etBreed: EditText
     private lateinit var etAge: EditText
-    private lateinit var etWeight: EditText
     private lateinit var etCity: EditText
-    private lateinit var etDistrict: EditText
     private lateinit var etDesc: EditText
     private lateinit var btnSave: Button
     private lateinit var btnSelectLocation: Button
     private lateinit var btnSelectPhoto: Button
-
-    private lateinit var auth: FirebaseAuth
+    private lateinit var tvSelectedLocation: TextView
 
     private var selectedImageUri: Uri? = null
-    private var ipfsImageHash: String? = null
+    private var selectedLat: Double? = null
+    private var selectedLng: Double? = null
 
-    private val PICK_IMAGE = 101
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            ivPetPhotoPreview.setImageURI(it)
+            ivPetPhotoPreview.visibility = View.VISIBLE
+            Toast.makeText(this, "Fotoğraf seçildi.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-    private val listPets = listOf(
-        "Kedi", "Köpek", "Tavşan", "Kaplumbağa",
-        "Hamster", "Balık", "Kuş", "Böcek Türleri",
-        "Sürüngenler", "Salyangoz", "Diğer"
-    )
+    private val mapResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            selectedLat = data?.getDoubleExtra("latitude", 0.0)
+            selectedLng = data?.getDoubleExtra("longitude", 0.0)
+            tvSelectedLocation.text = "Konum seçildi: ${String.format("%.4f", selectedLat)}, ${String.format("%.4f", selectedLng)}"
+            tvSelectedLocation.visibility = TextView.VISIBLE
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_pet)
 
-        // Firebase
         auth = FirebaseAuth.getInstance()
-        val db = Firebase.firestore
+        bindViews()
+        setupSpinner()
+        setupListeners()
+    }
 
-        // View bağlama
+    private fun bindViews() {
+        ivPetPhotoPreview = findViewById(R.id.ivPetPhotoPreview)
         etName = findViewById(R.id.etName)
         spType = findViewById(R.id.spType)
         etBreed = findViewById(R.id.etBreed)
         etAge = findViewById(R.id.etAge)
-        etWeight = findViewById(R.id.etWeight)
         etCity = findViewById(R.id.etCity)
-        etDistrict = findViewById(R.id.etDistrict)
         etDesc = findViewById(R.id.etDesc)
         btnSave = findViewById(R.id.btnSave)
         btnSelectLocation = findViewById(R.id.btnSelectLocation)
         btnSelectPhoto = findViewById(R.id.btnSelectPhoto)
+        tvSelectedLocation = findViewById(R.id.tvSelectedLocation)
+    }
 
-        // Tür spinner'ı
-        val arrayAdapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listPets)
-        spType.adapter = arrayAdapter
+    private fun setupSpinner() {
+        val petTypes = listOf("Kedi", "Köpek", "Kuş", "Balık", "Diğer")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, petTypes)
+        spType.adapter = adapter
+    }
 
-        // Konum seçme
+    private fun setupListeners() {
+        btnSelectPhoto.setOnClickListener { pickImageLauncher.launch("image/*") }
         btnSelectLocation.setOnClickListener {
-            val city = etCity.text.toString().trim()
-            val district = etDistrict.text.toString().trim()
-
             val intent = Intent(this, MapSelectLocationActivity::class.java)
-            intent.putExtra("city", city)
-            intent.putExtra("district", district)
-            startActivity(intent)
+            intent.putExtra("city", etCity.text.toString().trim())
+            mapResultLauncher.launch(intent)
+        }
+        btnSave.setOnClickListener { savePet() }
+    }
+
+    private fun savePet() {
+        val user = auth.currentUser
+        if (user == null) {
+            Toast.makeText(this, "Önce giriş yapmalısınız.", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        // Fotoğraf seçme
-        btnSelectPhoto.setOnClickListener {
-            val intent =
-                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            startActivityForResult(intent, PICK_IMAGE)
+        if (selectedImageUri == null) {
+            Toast.makeText(this, "Lütfen bir fotoğraf seçin.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        if (selectedLat == null || selectedLng == null) {
+            Toast.makeText(this, "Lütfen haritadan bir konum seçin.", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        // Kaydet
-        btnSave.setOnClickListener {
-            val user = auth.currentUser
-            if (user == null) {
-                Toast.makeText(this, "Önce giriş yap", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+        if (etName.text.isBlank() || etCity.text.isBlank()) {
+            Toast.makeText(this, "İsim ve Şehir alanları zorunludur.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Toast.makeText(this, "İlan yükleniyor, lütfen bekleyin...", Toast.LENGTH_LONG).show()
+        btnSave.isEnabled = false
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val uploader = PinataUploader(BuildConfig.PINATA_JWT)
+            val cid = uploader.uploadImage(this@AddPetActivity, selectedImageUri!!)
+
+            if (cid == null) {
+                Toast.makeText(this@AddPetActivity, "Fotoğraf yüklenemedi.", Toast.LENGTH_LONG).show()
+                btnSave.isEnabled = true
+                return@launch
             }
 
-            val name = etName.text.toString().trim()
-            val type = spType.selectedItem?.toString()?.trim() ?: ""
-            val breed = etBreed.text.toString().trim()
-            val age = etAge.text.toString().toIntOrNull() ?: 0
-            val weight = etWeight.text.toString().toDoubleOrNull() ?: 0.0
-            val city = etCity.text.toString().trim()
-            val district = etDistrict.text.toString().trim()
-            val desc = etDesc.text.toString().trim()
-
-            if (name.isEmpty() || type.isEmpty()) {
-                Toast.makeText(this, "İsim ve tür zorunlu", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Fotoğraf varsa önce Pinata'ya yükle
-            if (selectedImageUri != null) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    val uploader = PinataUploader(BuildConfig.PINATA_JWT)
-                    val cid = uploader.uploadImage(this@AddPetActivity, selectedImageUri!!)
-
-                    if (cid == null) {
-                        Toast.makeText(
-                            this@AddPetActivity,
-                            "Fotoğraf Pinata'ya yüklenemedi",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@launch
-                    }
-
-                    ipfsImageHash = cid
-                    savePetToFirestore(
-                        db = db,
-                        userId = user.uid,
-                        name = name,
-                        type = type,
-                        breed = breed,
-                        age = age,
-                        weight = weight,
-                        city = city,
-                        district = district,
-                        desc = desc
-                    )
-                }
-            } else {
-                // Foto yoksa hash olmadan kaydet
-                savePetToFirestore(
-                    db = db,
-                    userId = user.uid,
-                    name = name,
-                    type = type,
-                    breed = breed,
-                    age = age,
-                    weight = weight,
-                    city = city,
-                    district = district,
-                    desc = desc
-                )
-            }
+            val imageUrl = "https://gateway.pinata.cloud/ipfs/$cid"
+            savePetToFirestore(user.uid, imageUrl)
         }
     }
 
-    private fun savePetToFirestore(
-        db: com.google.firebase.firestore.FirebaseFirestore,
-        userId: String,
-        name: String,
-        type: String,
-        breed: String,
-        age: Int,
-        weight: Double,
-        city: String,
-        district: String,
-        desc: String
-    ) {
+    private fun savePetToFirestore(userId: String, imageUrl: String) {
         val petId = db.collection("pets").document().id
-
-        val petData = hashMapOf(
-            "petId" to petId,
-            "ownerId" to userId,
-            "name" to name,
-            "type" to type,
-            "breed" to breed,
-            "age" to age,
-            "weight" to weight,
-            "city" to city,
-            "district" to district,
-            "description" to desc,
-            "photoHash" to ipfsImageHash,  // Pinata CID burada
-            "createdAt" to FieldValue.serverTimestamp()
+        
+        val newPet = Pet(
+            id = petId,
+            ownerId = userId,
+            petName = etName.text.toString().trim(),
+            type = spType.selectedItem.toString(),
+            breed = etBreed.text.toString().trim(),
+            age = etAge.text.toString().toIntOrNull() ?: 0,
+            description = etDesc.text.toString().trim(),
+            city = etCity.text.toString().trim(),
+            imageUrl = imageUrl,
+            lat = selectedLat,
+            lng = selectedLng,
+            status = "pending_approval",
+            timestamp = System.currentTimeMillis()
         )
 
-        db.collection("pets").document(petId).set(petData)
+        db.collection("pets").document(petId).set(newPet)
             .addOnSuccessListener {
-                Toast.makeText(this, "İlan eklendi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "İlanınız onaya gönderildi.", Toast.LENGTH_LONG).show()
                 finish()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Hata: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Hata: ${e.message}", Toast.LENGTH_LONG).show()
+                btnSave.isEnabled = true
             }
-    }
-
-    // Fotoğraf seçimi sonucu
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
-            selectedImageUri = data?.data
-            Toast.makeText(this, "Fotoğraf seçildi", Toast.LENGTH_SHORT).show()
-        }
     }
 }

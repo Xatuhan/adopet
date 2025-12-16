@@ -1,13 +1,15 @@
 package com.example.adopet
 
-
-import com.example.adopet.R
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.adopet.admin.AdminGate
+import com.example.adopet.admin.AdminPanelActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -18,75 +20,95 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
     private lateinit var btnGoRegister: Button
+    private lateinit var tvForgotPassword: TextView // YENİ
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         btnGoRegister = findViewById(R.id.btnGoRegister)
+        tvForgotPassword = findViewById(R.id.tvForgotPassword) // YENİ
 
-        // Eğer kullanıcı zaten giriş yaptıysa ana ekrana at
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            goToHomeActivity()
+        if (auth.currentUser != null) {
+            redirectUserBasedOnRole()
         }
 
-        btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (!isValidEmail(email)){
-                Toast.makeText(this, "Geçerli bir email adresi girin.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            loginUser(email, password)
-        }
-
-        btnGoRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
-        }
+        btnLogin.setOnClickListener { loginUser() }
+        btnGoRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
+        tvForgotPassword.setOnClickListener { showForgotPasswordDialog() } // YENİ
     }
+
     private fun isValidEmail(email: String): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
-    private fun loginUser(email: String, password: String) {
 
-        auth.signInWithEmailAndPassword(email,password)
-            .addOnFailureListener {
-                if (it.localizedMessage?.contains("The email address is already in use") == true)
-                {
-                    Toast.makeText(this, "Bu email ile kayıt zaten var", Toast.LENGTH_LONG).show()
-                }
-            }
+    private fun loginUser() {
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString().trim()
 
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Lütfen tüm alanları doldurun", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!isValidEmail(email)){
+            Toast.makeText(this, "Geçerli bir email adresi girin.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Giriş başarılı", Toast.LENGTH_SHORT).show()
-                    goToHomeActivity()
-                } else {
-                    Toast.makeText(
-                        this,
-                        "Hata: ${task.exception?.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+            .addOnSuccessListener {
+                Toast.makeText(this, "Giriş başarılı", Toast.LENGTH_SHORT).show()
+                redirectUserBasedOnRole()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Giriş hatası: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun goToHomeActivity() {
-        startActivity(Intent(this, HomeActivity::class.java))
-        finish()
+    private fun showForgotPasswordDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Şifremi Unuttum")
+
+        val view = layoutInflater.inflate(R.layout.dialog_forgot_password, null)
+        val etEmailDialog = view.findViewById<EditText>(R.id.etEmailDialog)
+        builder.setView(view)
+
+        builder.setPositiveButton("Gönder") { _, _ ->
+            val email = etEmailDialog.text.toString().trim()
+            if (email.isNotEmpty() && isValidEmail(email)) {
+                sendPasswordResetEmail(email)
+            } else {
+                Toast.makeText(this, "Lütfen geçerli bir e-posta adresi girin.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("İptal", null)
+        builder.create().show()
+    }
+
+    private fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Şifre sıfırlama e-postası gönderildi.", Toast.LENGTH_LONG).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Hata: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun redirectUserBasedOnRole() {
+        AdminGate.isCurrentUserAdmin { isAdmin ->
+            if (isAdmin) {
+                val intent = Intent(this, AdminPanelActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this, HomeActivity::class.java)
+                startActivity(intent)
+            }
+            finish()
+        }
     }
 }

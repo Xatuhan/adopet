@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-
-
 }
 
 val localProperties = Properties()
@@ -15,7 +13,6 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 val pinataJwt: String = localProperties.getProperty("PINATA_JWT", "")
-
 
 android {
     namespace = "com.example.adopet"
@@ -44,7 +41,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-
     }
 
     compileOptions {
@@ -57,8 +53,12 @@ android {
     }
 }
 
+// KOTLIN DERLEYİCİSİ İÇİN JAVA VERSİYONUNU ZORUNLU KILAN BLOK
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
-    // 📌 Version catalog'tan gelenler (AndroidX, Material vb. İSTERSEN bırak)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -66,22 +66,19 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // 🔴 BUNU KESİNLİKLE KOYMUYORUZ:
-    // implementation(libs.firebase.auth.ktx)   <-- SİL / KALDIR
-
-    // İstersen ekstra explicit AndroidX sürümleri de kullanabilirsin:
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
 
-    // 🔥 Firebase BOM
+    // Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 
-    // ✅ Firebase kütüphaneleri – VERSİYON YOK, BOM'dan geliyor
+    // Firebase libraries
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    
     // Google Maps & Location
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
@@ -90,13 +87,12 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    // Ek test bağımlılıkların
 
+    // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
 }
-// build.gradle

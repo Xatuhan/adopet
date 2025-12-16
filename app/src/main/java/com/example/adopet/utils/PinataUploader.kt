@@ -2,40 +2,54 @@ package com.example.adopet.utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
+import android.util.Log
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import kotlin.math.roundToInt
 
 class PinataUploader(private val jwt: String) {
 
+    private data class PinataResponse(val IpfsHash: String?)
+
     private val client = OkHttpClient()
-    private val uploadUrl = "https://uploads.pinata.cloud/v3/files"
+    private val gson = Gson()
+    private val uploadUrl = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+
+    private val MAX_IMAGE_DIMENSION = 1080
 
     suspend fun uploadImage(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
         try {
-            // 1) Bitmap'e çevir
-            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            val resizedBitmap = resizeBitmap(context, uri)
+            if (resizedBitmap == null) {
+                Log.e("PinataUploader", "Resim küçültülemedi veya okunamadı.")
+                return@withContext null
+            }
+            
             val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 75, baos)
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
             val imageBytes = baos.toByteArray()
 
-            // 2) multipart form-data body
-            val fileBody = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageBytes)
+            val fileName = "adopet_${System.currentTimeMillis()}.jpg"
+            val fileBody = imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+
+            val metadata = """{"name": "$fileName"}"""
 
             val multipartBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", "adopet_${System.currentTimeMillis()}.jpg", fileBody)
-                .addFormDataPart("network", "public") // public IPFS ağı
+                .addFormDataPart("file", fileName, fileBody)
+                .addFormDataPart("pinataMetadata", metadata)
                 .build()
 
-            // 3) HTTP isteği
             val request = Request.Builder()
                 .url(uploadUrl)
                 .addHeader("Authorization", "Bearer $jwt")
@@ -43,21 +57,52 @@ class PinataUploader(private val jwt: String) {
                 .build()
 
             client.newCall(request).execute().use { response ->
+                val responseBodyString = response.body?.string()
+
                 if (!response.isSuccessful) {
+                    Log.e("PinataUploader", "Yükleme başarısız oldu: ${response.code}")
+                    Log.e("PinataUploader", "Cevap: $responseBodyString")
                     return@withContext null
                 }
 
-                val body = response.body?.string() ?: return@withContext null
+                Log.d("PinataUploader", "Başarılı cevap: $responseBodyString")
 
-                // JSON içinden "cid" alanını regex ile çekiyoruz
-                val cidRegex = """"cid"\s*:\s*"([^"]+)"""".toRegex()
-                val match = cidRegex.find(body)
-                val cid = match?.groups?.get(1)?.value
-                return@withContext cid
+                if (responseBodyString.isNullOrEmpty()) {
+                    Log.e("PinataUploader", "Pinata cevap gövdesi boş.")
+                    return@withContext null
+                }
+
+                val pinataResponse = gson.fromJson(responseBodyString, PinataResponse::class.java)
+                return@withContext pinataResponse.IpfsHash
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PinataUploader", "Fotoğraf yüklenirken istisna oluştu:", e)
             return@withContext null
+        }
+    }
+
+    private fun resizeBitmap(context: Context, uri: Uri): Bitmap? {
+        var inputStream: InputStream? = null
+        try {
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            inputStream = context.contentResolver.openInputStream(uri)
+            BitmapFactory.decodeStream(inputStream, null, options)
+            inputStream?.close()
+
+            var scale = 1
+            while (options.outWidth / scale / 2 >= MAX_IMAGE_DIMENSION &&
+                options.outHeight / scale / 2 >= MAX_IMAGE_DIMENSION) {
+                scale *= 2
+            }
+
+            val decodeOptions = BitmapFactory.Options().apply { inSampleSize = scale }
+            inputStream = context.contentResolver.openInputStream(uri)
+            return BitmapFactory.decodeStream(inputStream, null, decodeOptions)
+        } catch (e: Exception) {
+            Log.e("PinataUploader", "Resim boyutlandırılamadı", e)
+            return null
+        } finally {
+            inputStream?.close()
         }
     }
 }

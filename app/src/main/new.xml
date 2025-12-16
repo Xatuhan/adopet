@@ -1,0 +1,8 @@
+<ImageView android:id="@+id/imgPet" android:layout_width="80dp" android:layout_height="80dp"
+    android:layout_marginEnd="16dp" android:scaleType="centerCrop" android:contentDescription="
+    <ImageView
+    android:id="@+id/imgPet"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:layout_marginEnd="16dp"
+    android:scaleType="centerCrop"    android:contentDescription="Evcil hayvan fotoğrafı" />
