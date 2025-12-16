@@ -3,23 +3,24 @@ package com.example.adopet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-// Adaptör artık Map yerine güvenli Pet nesneleriyle çalışıyor.
 class MyPetsAdapter(
-    private val items: List<Pet>,              // <-- List<Pet> olarak değiştirildi
-    private val onClick: (Pet) -> Unit         // <-- (Pet) -> Unit olarak değiştirildi
+    private val items: List<Pet>,
+    private val favoritePetIds: Set<String>,      // YENİ: Favori ilanların ID'lerini tutar
+    private val onItemClick: (Pet) -> Unit,       // onClick -> onItemClick olarak yeniden adlandırıldı
+    private val onFavoriteClick: (Pet) -> Unit  // YENİ: Favori butonu tıklama fonksiyonu
 ) : RecyclerView.Adapter<MyPetsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // Not: item_pet_mylist.xml dosyanızda bu ID'lerin olduğundan emin olun.
         val txtName: TextView = view.findViewById(R.id.petName)
         val txtType: TextView = view.findViewById(R.id.petType)
-        // Resim için bir ImageView eklediğinizi varsayıyorum.
         val imgPet: ImageView = view.findViewById(R.id.imgPet)
+        val btnFavorite: ImageButton = view.findViewById(R.id.btnFavorite) // YENİ: Favori butonu
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,23 +34,25 @@ class MyPetsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val pet = items[position]
 
-        // Verilere artık doğrudan ve güvenli bir şekilde erişiyoruz
         holder.txtName.text = pet.petName
-        holder.txtType.text = pet.type
+        holder.txtType.text = "${pet.type} - ${pet.city}" // Şehir bilgisi eklendi
 
-        // Glide ile resmi yüklüyoruz
+        // Resmi yükle
         if (pet.imageUrl.isNotBlank()) {
-            Glide.with(holder.itemView.context)
-                .load(pet.imageUrl)
-                .centerCrop()
-                // Projenize uygun bir placeholder ekleyin
-                .placeholder(R.drawable.ic_launcher_foreground) 
-                .into(holder.imgPet)
+            Glide.with(holder.itemView.context).load(pet.imageUrl).centerCrop().into(holder.imgPet)
         } else {
-            // Resim yoksa varsayılan bir görsel göster
-            holder.imgPet.setImageResource(R.drawable.ic_launcher_foreground)
+            holder.imgPet.setImageResource(R.drawable.ic_launcher_foreground) 
         }
 
-        holder.itemView.setOnClickListener { onClick(pet) }
+        // Favori durumuna göre yıldız ikonunu ayarla
+        if (favoritePetIds.contains(pet.id)) {
+            holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_on)
+        } else {
+            holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_off)
+        }
+
+        // Tıklama dinleyicilerini ayarla
+        holder.itemView.setOnClickListener { onItemClick(pet) }
+        holder.btnFavorite.setOnClickListener { onFavoriteClick(pet) }
     }
 }

@@ -36,10 +36,11 @@
         <activity android:name=".EditPetActivity" android:exported="false" />
         <activity android:name=".MyPetsActivity" android:exported="false" />
         <activity android:name=".MapActivity" android:exported="false" />
-        <activity android:name=".MapSelectLocationActivity" android:exported="false" /> <!-- DÜZELTİLDİ: Eksik aktivite eklendi -->
+        <activity android:name=".MapSelectLocationActivity" android:exported="false" />
         <activity android:name=".PetDetailActivity" android:exported="false" />
         <activity android:name=".RequestsActivity" android:exported="false" />
         <activity android:name=".ChatbotActivity" android:exported="false" />
+        <activity android:name=".FavoritesActivity" android:exported="false" /> <!-- YENİ EKLENDİ -->
 
         <!-- Admin Activities -->
         <activity android:name=".admin.AdminPanelActivity" />

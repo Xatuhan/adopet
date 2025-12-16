@@ -5,6 +5,10 @@
         android:icon="@android:drawable/ic_menu_compass"
         android:title="Ana Sayfa" />
     <item
+        android:id="@+id/navigation_favorites" 
+        android:icon="@android:drawable/btn_star_big_on" 
+        android:title="Favorilerim" />
+    <item
         android:id="@+id/navigation_map"
         android:icon="@android:drawable/ic_dialog_map"
         android:title="Harita" />

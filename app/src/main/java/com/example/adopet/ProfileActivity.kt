@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -46,17 +47,14 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var btnDeactivate: Button
     private lateinit var btnLogout: Button
 
-    // Launcher for requesting storage permission
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission granted, launch the gallery picker
             pickImageLauncher.launch("image/*")
         } else {
             Toast.makeText(this, "Galeriye erişim izni gerekli.", Toast.LENGTH_LONG).show()
         }
     }
 
-    // Launcher for picking an image from the gallery
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { uploadProfilePicture(it) }
     }
@@ -125,18 +123,23 @@ class ProfileActivity : AppCompatActivity() {
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { doc ->
                 if (doc != null && doc.exists()) {
-                    etName.setText(doc.getString("name") ?: "")
-                    etSurname.setText(doc.getString("surname") ?: "")
-                    etCity.setText(doc.getString("city") ?: "")
-                    etDistrict.setText(doc.getString("district") ?: "")
-                    etPhone.setText(doc.getString("phone") ?: "")
-
-                    val imageUrl = doc.getString("profileImageUrl")
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(imageUrl).circleCrop().into(imgProfile)
-                    } else {
-                        imgProfile.setImageResource(R.mipmap.ic_launcher_round) // Default image
+                    val userProfile = doc.toObject(User::class.java)
+                    userProfile?.let {
+                        etName.setText(it.name)
+                        etSurname.setText(it.surname)
+                        etCity.setText(it.city)
+                        etDistrict.setText(it.district)
+                        etPhone.setText(it.phone)
+                        if (it.profileImageUrl.isNotEmpty()) {
+                            Glide.with(this).load(it.profileImageUrl).circleCrop().into(imgProfile)
+                        } else {
+                            imgProfile.setImageResource(R.mipmap.ic_launcher_round)
+                        }
                     }
+                } else {
+                    // Kullanıcı dokümanı yoksa, bu normal bir durum olabilir. 
+                    // saveProfile fonksiyonu bu durumu ele alacaktır.
+                    Log.w("ProfileActivity", "Kullanıcı dokümanı bulunamadı. Kaydet butonuna basıldığında oluşturulacak.")
                 }
             }.addOnFailureListener { 
                 Toast.makeText(this, "Profil yüklenemedi: ${it.localizedMessage}", Toast.LENGTH_LONG).show()
@@ -166,8 +169,11 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun saveImageUrlToFirestore(imageUrl: String) {
         val user = auth.currentUser ?: return
+        val data = mapOf("profileImageUrl" to imageUrl)
+
+        // Her zaman set(merge) kullanarak doküman yoksa bile oluşturulmasını veya güncellenmesini sağla.
         db.collection("users").document(user.uid)
-            .set(mapOf("profileImageUrl" to imageUrl), SetOptions.merge())
+            .set(data, SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Profil resmi güncellendi.", Toast.LENGTH_SHORT).show()
                 Glide.with(this).load(imageUrl).circleCrop().into(imgProfile)
@@ -179,7 +185,10 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun saveProfile() {
         val user = auth.currentUser ?: return
-        val data = hashMapOf(
+        
+        val profileData = mapOf(
+            "uid" to user.uid,
+            "email" to (user.email ?: ""),
             "name" to etName.text.toString().trim(),
             "surname" to etSurname.text.toString().trim(),
             "city" to etCity.text.toString().trim(),
@@ -188,9 +197,16 @@ class ProfileActivity : AppCompatActivity() {
             "updatedAt" to FieldValue.serverTimestamp()
         )
 
-        db.collection("users").document(user.uid).set(data, SetOptions.merge())
-            .addOnSuccessListener { Toast.makeText(this, "Profil güncellendi", Toast.LENGTH_SHORT).show() }
-            .addOnFailureListener { Toast.makeText(this, "Güncelleme hatası: ${it.localizedMessage}", Toast.LENGTH_LONG).show() }
+        // Her zaman set(merge) kullan. Bu, doküman yoksa oluşturur, varsa günceller.
+        // Bu, "iki ayrı kişi" sorununu ve veri kaybını kesin olarak önler.
+        db.collection("users").document(user.uid)
+            .set(profileData, SetOptions.merge())
+            .addOnSuccessListener { 
+                Toast.makeText(this, "Profil güncellendi", Toast.LENGTH_SHORT).show() 
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Güncelleme hatası: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
     
     private fun changePasswordDialog() {

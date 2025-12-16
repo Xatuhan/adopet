@@ -14,7 +14,7 @@ class MyPetsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MyPetsAdapter
-    private val myPetList = mutableListOf<Pet>() // <-- Map'ten Pet listesine çevrildi
+    private val myPetList = mutableListOf<Pet>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,13 +23,17 @@ class MyPetsActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerMyPets)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Yeni ve güvenli adaptörümüzü kuruyoruz
-        adapter = MyPetsAdapter(myPetList) { pet ->
-            // Tıklanan ilanın ID'sini EditPetActivity'ye gönderiyoruz
-            val intent = Intent(this, EditPetActivity::class.java)
-            intent.putExtra("petId", pet.id) // <-- Artık güvenli bir şekilde ID'ye erişiyoruz
-            startActivity(intent)
-        }
+        // DÜZELTİLDİ: Adaptörü yeni ve doğru parametrelerle kuruyoruz.
+        adapter = MyPetsAdapter(
+            myPetList,
+            emptySet(), // Bu ekranda favori özelliği olmayacağı için boş set gönderiyoruz.
+            onItemClick = { pet ->
+                val intent = Intent(this, EditPetActivity::class.java)
+                intent.putExtra("petId", pet.id)
+                startActivity(intent)
+            },
+            onFavoriteClick = {} // Bu ekranda favori butonu bir şey yapmayacak.
+        )
 
         recyclerView.adapter = adapter
 
@@ -42,12 +46,10 @@ class MyPetsActivity : AppCompatActivity() {
 
         db.collection("pets")
             .whereEqualTo("ownerId", uid)
-            // İlanları en yeniden eskiye doğru sıralıyoruz
-            .orderBy("timestamp", Query.Direction.DESCENDING) 
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { result ->
                 myPetList.clear()
-                // Gelen dökümanları doğrudan Pet nesnelerine çeviriyoruz
                 val pets = result.toObjects(Pet::class.java)
                 myPetList.addAll(pets)
                 adapter.notifyDataSetChanged()
