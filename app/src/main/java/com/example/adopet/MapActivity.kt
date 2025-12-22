@@ -45,8 +45,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
                 for (document in documents) {
                     val pet = document.toObject(Pet::class.java)
 
-                    if (pet.lat != 0.0 && pet.lng != 0.0) {
-                        val position = LatLng(pet.lat, pet.lng)
+                    if (pet.latitude != 0.0 && pet.longitude != 0.0) {
+                        val position = LatLng(pet.latitude, pet.longitude)
                         val marker = mMap.addMarker(
                             MarkerOptions()
                                 .position(position)

@@ -17,6 +17,6 @@ data class Pet(
     val status: String = "",
     val timestamp: Long = 0L,
 
-    val lat: Double = 0.0,
-    val lng: Double = 0.0
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )

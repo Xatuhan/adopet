@@ -150,8 +150,8 @@ class AddPetActivity : AppCompatActivity() {
             description = etDesc.text.toString().trim(),
             city = etCity.text.toString().trim(),
             imageUrl = imageUrl,
-            lat = selectedLat ?: 0.0,
-            lng = selectedLng ?: 0.0,
+            latitude = selectedLat ?: 0.0,
+            longitude = selectedLng ?: 0.0,
             status = "pending_approval",
             timestamp = System.currentTimeMillis()
         )

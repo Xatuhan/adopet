@@ -80,9 +80,9 @@ class PetDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.chipAge.text = "Yaş: ${pet.age} aylık"
         binding.tvDescription.text = pet.description
 
-        if (pet.lat != 0.0 && pet.lng != 0.0) {
+        if (pet.latitude != 0.0 && pet.longitude != 0.0) {
             binding.tvLocation.text = "${pet.city}, ${pet.district}"
-            val petLocation = LatLng(pet.lat, pet.lng)
+            val petLocation = LatLng(pet.latitude, pet.longitude)
             map?.addMarker(MarkerOptions().position(petLocation).title(pet.petName))
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(petLocation, 15f))
         } else {
@@ -153,8 +153,8 @@ class PetDetailActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         currentPet?.let { pet ->
-            if (pet.lat != 0.0 && pet.lng != 0.0) {
-                val petLocation = LatLng(pet.lat, pet.lng)
+            if (pet.latitude != 0.0 && pet.longitude != 0.0) {
+                val petLocation = LatLng(pet.latitude, pet.longitude)
                 map?.addMarker(MarkerOptions().position(petLocation).title(pet.petName))
                 map?.moveCamera(CameraUpdateFactory.newLatLngZoom(petLocation, 15f))
             }
