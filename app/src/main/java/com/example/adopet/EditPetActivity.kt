@@ -36,7 +36,6 @@ class EditPetActivity : AppCompatActivity() {
     private var newImageUri: Uri? = null
     private var existingImageUrl: String? = null
 
-    // Modern way to handle picking an image
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             newImageUri = it
@@ -135,7 +134,7 @@ class EditPetActivity : AppCompatActivity() {
             "breed" to etBreed.text.toString().trim(),
             "age" to (etAge.text.toString().toIntOrNull() ?: 0),
             "description" to etDesc.text.toString().trim(),
-            "imageUrl" to imageUrl // Update the imageUrl field
+            "imageUrl" to imageUrl
         )
 
         db.collection("pets").document(petId)

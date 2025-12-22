@@ -31,7 +31,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
         mMap = googleMap
         mMap.setOnInfoWindowClickListener(this) // Set the listener for info window clicks
 
-        // Center camera on Turkey initially
         val turkey = LatLng(39.0, 35.0)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(turkey, 5f))
 
@@ -45,7 +44,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     val pet = document.toObject(Pet::class.java)
-                    if (pet.lat != null && pet.lng != null) {
+
+                    if (pet.lat != 0.0 && pet.lng != 0.0) {
                         val position = LatLng(pet.lat, pet.lng)
                         val marker = mMap.addMarker(
                             MarkerOptions()
@@ -54,24 +54,23 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
                                 .snippet(pet.type)
                         )
                         // Store the Pet ID in the marker's tag for later retrieval
-                        marker?.tag = pet.id 
+                        marker?.tag = pet.id
                     }
                 }
             }
             .addOnFailureListener { exception ->
-                Log.w("MapActivity", "Error getting documents: ", exception)
+                Log.w("MapActivity", "Dökümanları çekerken hata: ", exception)
             }
     }
 
     override fun onInfoWindowClick(marker: Marker) {
-        // Retrieve the pet ID from the marker's tag
         val petId = marker.tag as? String
         if (petId == null) {
             Log.e("MapActivity", "Marker tag is null, cannot open detail activity.")
             return
         }
 
-        // Open PetDetailActivity with the selected pet's ID
+
         val intent = Intent(this, PetDetailActivity::class.java)
         intent.putExtra("petId", petId)
         startActivity(intent)

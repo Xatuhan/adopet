@@ -44,7 +44,6 @@
             app:layout_constraintTop_toBottomOf="@+id/petName"
             tools:text="Kedi - Ankara" />
 
-        <!-- YENİ: Favori Butonu -->
         <ImageButton
             android:id="@+id/btnFavorite"
             android:layout_width="48dp"

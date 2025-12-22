@@ -9,7 +9,7 @@ import com.example.adopet.databinding.ItemRequestBinding
 
 class RequestsAdapter(
     private val items: List<AdoptionRequest>,
-    private val isIncoming: Boolean, // Butonların gösterilip gösterilmeyeceğini belirler
+    private val isIncoming: Boolean,
     private val onAccept: (AdoptionRequest) -> Unit = {},
     private val onReject: (AdoptionRequest) -> Unit = {}
 ) : RecyclerView.Adapter<RequestsAdapter.ViewHolder>() {
@@ -17,7 +17,7 @@ class RequestsAdapter(
     class ViewHolder(val binding: ItemRequestBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Hata düzeltildi: ItemRequestbing -> ItemRequestBinding
+
         val binding = ItemRequestBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
@@ -32,7 +32,7 @@ class RequestsAdapter(
 
             if (isIncoming) {
                 tvRequesterInfo.text = "Başvuran: ${request.requesterName}"
-                // Sadece beklemedeki başvurular için butonları göster
+
                 if (request.status == "pending") {
                     layoutButtons.visibility = View.VISIBLE
                     btnAccept.setOnClickListener { onAccept(request) }

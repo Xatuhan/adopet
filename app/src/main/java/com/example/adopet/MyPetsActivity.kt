@@ -2,60 +2,85 @@ package com.example.adopet
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.adopet.databinding.ActivityMyPetsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
 class MyPetsActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: MyPetsAdapter
-    private val myPetList = mutableListOf<Pet>()
+    private lateinit var binding: ActivityMyPetsBinding
+    private lateinit var petAdapter: PetCardAdapter
+    private val myPetsList = mutableListOf<Pet>()
+
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_my_pets)
+        binding = ActivityMyPetsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        recyclerView = findViewById(R.id.recyclerMyPets)
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // DÜZELTİLDİ: Adaptörü yeni ve doğru parametrelerle kuruyoruz.
-        adapter = MyPetsAdapter(
-            myPetList,
-            emptySet(), // Bu ekranda favori özelliği olmayacağı için boş set gönderiyoruz.
-            onItemClick = { pet ->
-                val intent = Intent(this, EditPetActivity::class.java)
-                intent.putExtra("petId", pet.id)
-                startActivity(intent)
-            },
-            onFavoriteClick = {} // Bu ekranda favori butonu bir şey yapmayacak.
-        )
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener { finish() }
 
-        recyclerView.adapter = adapter
-
-        loadMyPets()
+        setupRecyclerView()
+        fetchMyPets()
     }
 
-    private fun loadMyPets() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
+    private fun setupRecyclerView() {
+        petAdapter = PetCardAdapter(myPetsList) { pet ->
+
+            val intent = Intent(this, EditPetActivity::class.java)
+            intent.putExtra("petId", pet.id)
+            startActivity(intent)
+        }
+        binding.recyclerMyPets.layoutManager = LinearLayoutManager(this)
+        binding.recyclerMyPets.adapter = petAdapter
+    }
+
+    private fun fetchMyPets() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(this, "Giriş yapmalısınız.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         db.collection("pets")
-            .whereEqualTo("ownerId", uid)
+            .whereEqualTo("ownerId", currentUser.uid) // Sadece mevcut kullanıcının ilanlarını getir
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { result ->
-                myPetList.clear()
-                val pets = result.toObjects(Pet::class.java)
-                myPetList.addAll(pets)
-                adapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "İlanlar yüklenemedi: ${e.message}", Toast.LENGTH_SHORT).show()
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Toast.makeText(this, "İlanlar yüklenemedi.", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    myPetsList.clear()
+                    val pets = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(Pet::class.java)?.apply {
+                            id = doc.id
+                        }
+                    }
+                    myPetsList.addAll(pets)
+                    petAdapter.updateList(myPetsList)
+
+                    // Eğer liste boşsa "ilan yok" mesajını göster
+                    if (myPetsList.isEmpty()) {
+                        binding.tvNoPets.visibility = View.VISIBLE
+                        binding.recyclerMyPets.visibility = View.GONE
+                    } else {
+                        binding.tvNoPets.visibility = View.GONE
+                        binding.recyclerMyPets.visibility = View.VISIBLE
+                    }
+                }
             }
     }
 }

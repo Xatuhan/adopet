@@ -10,36 +10,40 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.adopet.admin.AdminGate
 import com.example.adopet.admin.AdminPanelActivity
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
 
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
+    // DÜZELTİLDİ: Yeni arayüzdeki elemanlara göre tanımlamalar
+    private lateinit var etEmail: TextInputEditText
+    private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: Button
-    private lateinit var btnGoRegister: Button
-    private lateinit var tvForgotPassword: TextView // YENİ
+    private lateinit var btnGoRegister: TextView
+    private lateinit var tvForgotPassword: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
+
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         btnGoRegister = findViewById(R.id.btnGoRegister)
-        tvForgotPassword = findViewById(R.id.tvForgotPassword) // YENİ
+        tvForgotPassword = findViewById(R.id.tvForgotPassword)
 
         if (auth.currentUser != null) {
             redirectUserBasedOnRole()
         }
 
+
         btnLogin.setOnClickListener { loginUser() }
         btnGoRegister.setOnClickListener { startActivity(Intent(this, RegisterActivity::class.java)) }
-        tvForgotPassword.setOnClickListener { showForgotPasswordDialog() } // YENİ
+        tvForgotPassword.setOnClickListener { showForgotPasswordDialog() }
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -73,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Şifremi Unuttum")
 
+        // Bu dialog için ayrı bir layout dosyası kullanmıştık, o aynı kalabilir.
         val view = layoutInflater.inflate(R.layout.dialog_forgot_password, null)
         val etEmailDialog = view.findViewById<EditText>(R.id.etEmailDialog)
         builder.setView(view)

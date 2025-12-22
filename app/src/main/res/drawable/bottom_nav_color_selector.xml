@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Seçili durumdaki renk -->
+    <item android:state_checked="true" android:color="@color/yanRenk" />
+    <!-- Varsayılan (seçili olmayan) durumdaki renk -->
+    <item android:color="@color/gray" />
+</selector>

@@ -23,7 +23,7 @@ class PinataUploader(private val jwt: String) {
 
     private val client = OkHttpClient()
     private val gson = Gson()
-    private val uploadUrl = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+    private val uploadUrl = " https://api.pinata.cloud/pinning/pinFileToIPFS "
 
     private val MAX_IMAGE_DIMENSION = 1080
 

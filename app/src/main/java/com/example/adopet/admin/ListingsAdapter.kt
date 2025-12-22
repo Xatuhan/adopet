@@ -24,7 +24,7 @@ class ListingsAdapter(
         val pet = items[position]
 
         h.b.title.text = pet.petName.ifBlank { "(İsimsiz)" }
-        // Subtitle'ı daha bilgilendirici yapalım (Tür - Şehir - Durum)
+
         h.b.subtitle.text = "${pet.type} - ${pet.city} - [${pet.status}]"
 
         // Duruma göre subtitle rengini değiştirelim
@@ -36,7 +36,7 @@ class ListingsAdapter(
             else -> h.b.subtitle.setTextColor(Color.GRAY)
         }
 
-        // Butonları genel amaçlı hale getiriyoruz
+
         h.b.btnEdit.text = "Düzenle"
         h.b.btnDelete.text = "Sil"
 

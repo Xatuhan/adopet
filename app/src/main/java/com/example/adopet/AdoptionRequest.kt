@@ -1,5 +1,6 @@
 package com.example.adopet
 
+
 data class AdoptionRequest(
     val id: String = "",
     val petId: String = "",
@@ -8,8 +9,7 @@ data class AdoptionRequest(
     val ownerId: String = "",
     val requesterId: String = "",
     val requesterName: String = "",
-    val status: String = "pending", // pending, accepted, rejected
-    val timestamp: Long = System.currentTimeMillis(),
-    // YENİ EKLENEN ALAN: Sorguları basitleştirmek ve güvenliği artırmak için.
-    val participantIds: List<String> = listOf()
+    val status: String = "pending",
+    val timestamp: Long = 0L,
+    val participantIds: List<String> = emptyList()
 )

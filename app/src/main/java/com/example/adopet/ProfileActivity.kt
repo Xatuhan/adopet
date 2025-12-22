@@ -17,7 +17,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.example.adopet.utils.PinataUploader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -131,14 +130,12 @@ class ProfileActivity : AppCompatActivity() {
                         etDistrict.setText(it.district)
                         etPhone.setText(it.phone)
                         if (it.profileImageUrl.isNotEmpty()) {
-                            Glide.with(this).load(it.profileImageUrl).circleCrop().into(imgProfile)
+                            GlideApp.with(this).load(it.profileImageUrl).circleCrop().into(imgProfile)
                         } else {
-                            imgProfile.setImageResource(R.mipmap.ic_launcher_round)
+                            imgProfile.setImageResource(R.drawable.ic_kullanici)
                         }
                     }
                 } else {
-                    // Kullanıcı dokümanı yoksa, bu normal bir durum olabilir. 
-                    // saveProfile fonksiyonu bu durumu ele alacaktır.
                     Log.w("ProfileActivity", "Kullanıcı dokümanı bulunamadı. Kaydet butonuna basıldığında oluşturulacak.")
                 }
             }.addOnFailureListener { 
@@ -147,7 +144,7 @@ class ProfileActivity : AppCompatActivity() {
     }
     
     private fun uploadProfilePicture(uri: Uri) {
-        if (BuildConfig.PINATA_JWT.isNullOrEmpty() || BuildConfig.PINATA_JWT == "YOUR_PINATA_JWT_HERE") {
+        if (BuildConfig.PINATA_JWT.isNullOrEmpty() ) {
             Toast.makeText(this, "Pinata JWT anahtarı ayarlanmamış!", Toast.LENGTH_LONG).show()
             return
         }
@@ -171,12 +168,11 @@ class ProfileActivity : AppCompatActivity() {
         val user = auth.currentUser ?: return
         val data = mapOf("profileImageUrl" to imageUrl)
 
-        // Her zaman set(merge) kullanarak doküman yoksa bile oluşturulmasını veya güncellenmesini sağla.
         db.collection("users").document(user.uid)
             .set(data, SetOptions.merge())
             .addOnSuccessListener {
                 Toast.makeText(this, "Profil resmi güncellendi.", Toast.LENGTH_SHORT).show()
-                Glide.with(this).load(imageUrl).circleCrop().into(imgProfile)
+                GlideApp.with(this).load(imageUrl).circleCrop().into(imgProfile)
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "URL kaydedilemedi: ${e.message}", Toast.LENGTH_LONG).show()
@@ -197,8 +193,6 @@ class ProfileActivity : AppCompatActivity() {
             "updatedAt" to FieldValue.serverTimestamp()
         )
 
-        // Her zaman set(merge) kullan. Bu, doküman yoksa oluşturur, varsa günceller.
-        // Bu, "iki ayrı kişi" sorununu ve veri kaybını kesin olarak önler.
         db.collection("users").document(user.uid)
             .set(profileData, SetOptions.merge())
             .addOnSuccessListener { 

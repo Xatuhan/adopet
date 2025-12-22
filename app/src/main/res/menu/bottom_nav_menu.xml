@@ -5,17 +5,13 @@
         android:icon="@android:drawable/ic_menu_compass"
         android:title="Ana Sayfa" />
     <item
-        android:id="@+id/navigation_favorites" 
-        android:icon="@android:drawable/btn_star_big_on" 
-        android:title="Favorilerim" />
+        android:id="@+id/navigation_favorites"
+        android:icon="@drawable/ic_kalp_bos"
+        android:title="Favoriler" />
     <item
         android:id="@+id/navigation_map"
         android:icon="@android:drawable/ic_dialog_map"
         android:title="Harita" />
-    <item
-        android:id="@+id/navigation_mypets"
-        android:icon="@android:drawable/ic_menu_agenda"
-        android:title="İlanlarım" />
     <item
         android:id="@+id/navigation_profile"
         android:icon="@android:drawable/ic_menu_myplaces"

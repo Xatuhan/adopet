@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivPetImage"
+            android:layout_width="120dp"
+            android:layout_height="0dp"
+            android:layout_margin="12dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/tvPetName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:textColor="#333333"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivPetImage"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Limon" />
+
+        <ImageView
+            android:id="@+id/ivLocationIcon"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginTop="4dp"
+            android:src="@android:drawable/ic_dialog_map" 
+            app:layout_constraintStart_toStartOf="@+id/tvPetName"
+            app:layout_constraintTop_toBottomOf="@+id/tvPetName"
+            app:tint="#757575" />
+
+        <TextView
+            android:id="@+id/tvLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="#757575"
+            app:layout_constraintBottom_toBottomOf="@+id/ivLocationIcon"
+            app:layout_constraintEnd_toEndOf="@+id/tvPetName"
+            app:layout_constraintStart_toEndOf="@+id/ivLocationIcon"
+            app:layout_constraintTop_toTopOf="@+id/ivLocationIcon"
+            tools:text="İzmir - Alsancak" />
+
+        <TextView
+            android:id="@+id/tvShortDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_rounded_input" 
+            android:padding="8dp"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@+id/tvLocation"
+            app:layout_constraintStart_toStartOf="@+id/ivLocationIcon"
+            app:layout_constraintTop_toBottomOf="@+id/ivLocationIcon"
+            tools:text="Çok oyuncu." />
+
+        <LinearLayout
+            android:id="@+id/llTags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@+id/tvShortDescription"
+            app:layout_constraintTop_toBottomOf="@+id/tvShortDescription">
+
+            <TextView
+                android:id="@+id/tag1"
+                style="@style/TagTextView"
+                tools:backgroundTint="#FFCDD2"
+                tools:text="Dişi" />
+
+            <TextView
+                android:id="@+id/tag2"
+                style="@style/TagTextView"
+                android:layout_marginStart="8dp"
+                tools:backgroundTint="#FFF9C4"
+                tools:text="Sarı Tekir" />
+
+            <TextView
+                android:id="@+id/tag3"
+                style="@style/TagTextView"
+                android:layout_marginStart="8dp"
+                tools:backgroundTint="#C8E6C9"
+                tools:text="2 Aylık" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

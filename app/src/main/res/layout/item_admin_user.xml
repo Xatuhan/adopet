@@ -22,8 +22,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <Button android:id="@+id/btnEdit" android:text="Düzenle"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="88dp"
+            android:layout_height="wrap_content"
+            android:text="Düzenle" />
         <Button android:id="@+id/btnDeactivate" android:text="Pasif"
             android:layout_marginStart="8dp"
             android:layout_width="wrap_content" android:layout_height="wrap_content"/>

@@ -87,7 +87,7 @@ class AdminRequestsActivity : AppCompatActivity() {
                     }
                 }
                 
-                // Commit the batch
+
                 batch.commit()
                     .addOnSuccessListener {
                         Toast.makeText(this, "Başvuru kabul edildi ve diğerleri reddedildi.", Toast.LENGTH_LONG).show()
@@ -97,7 +97,7 @@ class AdminRequestsActivity : AppCompatActivity() {
                     }
             }
             .addOnFailureListener { e ->
-                // Fallback to commit only the first two operations if querying others fails
+
                 batch.commit()
                 Toast.makeText(this, "Ana başvuru kabul edildi, diğerleri kontrol edilemedi.", Toast.LENGTH_LONG).show()
             }

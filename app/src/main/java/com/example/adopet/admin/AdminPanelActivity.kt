@@ -19,17 +19,17 @@ class AdminPanelActivity : AppCompatActivity() {
             finish()
         }
 
-        // "Tüm İlanlar" kartı
+
         findViewById<MaterialCardView>(R.id.cardListings).setOnClickListener {
             startActivity(Intent(this, ListingsAdminActivity::class.java))
         }
 
-        // "Kullanıcılar" kartı
+
         findViewById<MaterialCardView>(R.id.cardUsers).setOnClickListener {
             startActivity(Intent(this, UsersAdminActivity::class.java))
         }
 
-        // "Başvuru Yönetimi" kartı (YENİ EKLENEN)
+
         findViewById<MaterialCardView>(R.id.cardRequests).setOnClickListener {
             startActivity(Intent(this, AdminRequestsActivity::class.java))
         }

@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 val localProperties = Properties()
@@ -12,7 +14,6 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
-val pinataJwt: String = localProperties.getProperty("PINATA_JWT", "")
 
 android {
     namespace = "com.example.adopet"
@@ -25,7 +26,16 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // BuildConfig anahtarları (Kod içinde kullanılır)
+        val pinataJwt: String = localProperties.getProperty("PINATA_JWT", "")
         buildConfigField("String", "PINATA_JWT", "\"$pinataJwt\"")
+
+        val weatherApiKey: String = localProperties.getProperty("weather_Key", "")
+        buildConfigField("String", "weather_Key", weatherApiKey)
+
+        // Manifest anahtarı (AndroidManifest.xml içinde kullanılır)
+        val mapsApiKey: String = localProperties.getProperty("maps_api_key", "")
+        manifestPlaceholders["mapsApiKey"] = mapsApiKey
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,9 +61,12 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    kapt {
+        correctErrorTypes = true
+    }
 }
 
-// KOTLIN DERLEYİCİSİ İÇİN JAVA VERSİYONUNU ZORUNLU KILAN BLOK
+
 kotlin {
     jvmToolchain(17)
 }
@@ -83,6 +96,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
@@ -95,4 +109,6 @@ dependencies {
 
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.github.bumptech.glide:okhttp3-integration:4.16.0")
 }

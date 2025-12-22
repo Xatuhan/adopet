@@ -3,20 +3,21 @@ package com.example.adopet
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.adopet.databinding.ActivityFavoritesBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FavoritesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFavoritesBinding
-    private lateinit var adapter: MyPetsAdapter
+    private lateinit var petsAdapter: MyPetsAdapter
     private val favoritePetsList = mutableListOf<Pet>()
-    private val favoritePetIds = mutableSetOf<String>()
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -26,101 +27,145 @@ class FavoritesActivity : AppCompatActivity() {
         binding = ActivityFavoritesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
         setupRecyclerView()
-        loadFavoriteIdsAndThenPets()
     }
 
     override fun onResume() {
         super.onResume()
-        // Ekran her görünür olduğunda listeyi yenilemek, başka ekranlarda yapılan
-        // favori değişikliklerinin buraya yansımasını sağlar.
-        loadFavoriteIdsAndThenPets()
+        loadFavorites()
     }
 
     private fun setupRecyclerView() {
-        adapter = MyPetsAdapter(favoritePetsList, favoritePetIds,
+        petsAdapter = MyPetsAdapter(favoritePetsList,
             onItemClick = { pet ->
                 val intent = Intent(this, PetDetailActivity::class.java)
                 intent.putExtra("petId", pet.id)
                 startActivity(intent)
             },
-            onFavoriteClick = { pet ->
-                toggleFavorite(pet)
+            onFavoriteClick = { pet, _ ->
+                removeFavorite(pet)
             }
         )
         binding.recyclerFavorites.layoutManager = LinearLayoutManager(this)
-        binding.recyclerFavorites.adapter = adapter
+        binding.recyclerFavorites.adapter = petsAdapter
     }
 
-    private fun loadFavoriteIdsAndThenPets() {
-        val currentUser = auth.currentUser ?: return
+    private fun loadFavorites() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            updateFavoritesUI(emptyList())
+            Toast.makeText(this, "Giriş yapmalısınız.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        binding.progressBar.visibility = View.VISIBLE
 
         db.collection("users").document(currentUser.uid).get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val user = document.toObject(User::class.java)
-                    val serverFavorites = user?.favoritePetIds?.toSet() ?: emptySet()
-                    
-                    // Sadece gerçekten bir değişiklik varsa listeyi yeniden yükle
-                    if (serverFavorites != favoritePetIds) {
-                        favoritePetIds.clear()
-                        favoritePetIds.addAll(serverFavorites)
-                        fetchFavoritePets()
+                if (document == null || !document.exists()) {
+                    updateFavoritesUI(emptyList())
+                    return@addOnSuccessListener
+                }
+
+                val petIds = document.get("favoritePetIds") as? List<String>
+
+                if (petIds.isNullOrEmpty()) {
+                    updateFavoritesUI(emptyList())
+                } else {
+                    fetchFavoritePets(petIds)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FavoritesActivity", "Favoriler yüklenemedi", e)
+                updateFavoritesUI(emptyList())
+                Toast.makeText(this, "Favoriler yüklenemedi.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun fetchFavoritePets(petIds: List<String>) {
+
+        val cleanedIds = petIds
+            .filter { it.isNotBlank() }
+            .distinct()
+
+        if (cleanedIds.isEmpty()) {
+            updateFavoritesUI(emptyList())
+            return
+        }
+
+        // whereIn limiti için 10'luk parçalara böl
+        val chunks = cleanedIds.chunked(10)
+
+        val allPets = mutableListOf<Pet>()
+        var pending = chunks.size
+        var anyFail = false
+
+        chunks.forEach { chunk ->
+            db.collection("pets") // ✅ doğru koleksiyon
+                .whereEqualTo("status", "approved")
+                .whereIn(FieldPath.documentId(), chunk)
+                .get()
+                .addOnSuccessListener { snap ->
+                    allPets.addAll(
+                        snap.documents.mapNotNull { doc ->
+                            doc.toObject(Pet::class.java)?.apply { id = doc.id }
+                        }
+                    )
+                }
+                .addOnFailureListener { e ->
+                    anyFail = true
+                    Log.e("FavoritesActivity", "İlanlar alınamadı (chunk)", e)
+                }
+                .addOnCompleteListener {
+                    pending--
+                    if (pending == 0) {
+                        if (anyFail) {
+                            // en azından logtan yakalarsın
+                            Log.e("FavoritesActivity", "Bazı favoriler çekilemedi, loga bak.")
+                        }
+
+                        // favoritePetIds sırasını koru + ters çevir (son eklenen başta)
+                        val map = allPets.associateBy { it.id }
+                        val sorted = cleanedIds.mapNotNull { map[it] }.reversed()
+
+                        updateFavoritesUI(sorted)
                     }
                 }
-            }
+        }
     }
 
-    private fun fetchFavoritePets() {
-        favoritePetsList.clear()
-        if (favoritePetIds.isEmpty()) {
-            adapter.notifyDataSetChanged()
-            return
-        }
 
-        db.collection("pets").whereIn("id", favoritePetIds.toList()).get()
-            .addOnSuccessListener { documents ->
-                favoritePetsList.clear() // Önceki sonuçları temizle
-                for (doc in documents) {
-                    favoritePetsList.add(doc.toObject(Pet::class.java))
-                }
-                favoritePetsList.sortByDescending { it.timestamp }
-                adapter.notifyDataSetChanged()
+    private fun removeFavorite(pet: Pet) {
+        val currentUser = auth.currentUser ?: return
+        if (pet.id.isBlank()) return
+
+        db.collection("users").document(currentUser.uid)
+            .update("favoritePetIds", FieldValue.arrayRemove(pet.id))
+            .addOnSuccessListener { 
+                Toast.makeText(this, "'${pet.petName}' favorilerden kaldırıldı.", Toast.LENGTH_SHORT).show()
+                loadFavorites()
             }
             .addOnFailureListener { 
-                Toast.makeText(this, "Favori ilanlar yüklenemedi.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Hata: Favori kaldırılamadı.", Toast.LENGTH_SHORT).show() 
             }
     }
 
-    private fun toggleFavorite(pet: Pet) {
-        val currentUser = auth.currentUser ?: return
-        val userDocRef = db.collection("users").document(currentUser.uid)
-        val petId = pet.id
+    private fun updateFavoritesUI(pets: List<Pet>) {
+        binding.progressBar.visibility = View.GONE
+        favoritePetsList.clear()
+        favoritePetsList.addAll(pets)
+        petsAdapter.notifyDataSetChanged()
 
-        // Bu ekranda sadece favoriden çıkarma işlemi yapılır.
-        if (!favoritePetIds.contains(petId)) return
-
-        // Adım 1: UI'ı anında güncelle (Optimistic Update)
-        val petIndex = favoritePetsList.indexOfFirst { it.id == petId }
-        if (petIndex != -1) {
-            favoritePetsList.removeAt(petIndex)
-            favoritePetIds.remove(petId)
-            adapter.notifyItemRemoved(petIndex)
+        if (pets.isEmpty()) {
+            binding.recyclerFavorites.visibility = View.GONE
+            binding.tvNoFavorites.visibility = View.VISIBLE
         } else {
-            return
+            binding.recyclerFavorites.visibility = View.VISIBLE
+            binding.tvNoFavorites.visibility = View.GONE
         }
-
-        // Adım 2: Firestore'u arka planda güncelle
-        userDocRef.update("favoritePetIds", FieldValue.arrayRemove(petId))
-            .addOnFailureListener {
-                // Adım 3: Hata olursa UI'ı eski haline geri döndür
-                Log.e("FavoritesActivity", "Favori kaldırılamadı", it)
-                Toast.makeText(this, "Bir hata oluştu, favori kaldırılamadı.", Toast.LENGTH_SHORT).show()
-                
-                // Silinen ilanı ve ID'yi geri ekle
-                favoritePetIds.add(petId)
-                favoritePetsList.add(petIndex, pet) 
-                adapter.notifyItemInserted(petIndex) 
-            }
     }
 }

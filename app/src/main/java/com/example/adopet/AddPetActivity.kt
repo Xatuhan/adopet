@@ -25,10 +25,10 @@ class AddPetActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
 
-    // Views
     private lateinit var ivPetPhotoPreview: ImageView
     private lateinit var etName: EditText
     private lateinit var spType: Spinner
+    private lateinit var spGender: Spinner
     private lateinit var etBreed: EditText
     private lateinit var etAge: EditText
     private lateinit var etCity: EditText
@@ -67,7 +67,7 @@ class AddPetActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         bindViews()
-        setupSpinner()
+        setupSpinners()
         setupListeners()
     }
 
@@ -75,6 +75,7 @@ class AddPetActivity : AppCompatActivity() {
         ivPetPhotoPreview = findViewById(R.id.ivPetPhotoPreview)
         etName = findViewById(R.id.etName)
         spType = findViewById(R.id.spType)
+        spGender = findViewById(R.id.spGender)
         etBreed = findViewById(R.id.etBreed)
         etAge = findViewById(R.id.etAge)
         etCity = findViewById(R.id.etCity)
@@ -85,10 +86,14 @@ class AddPetActivity : AppCompatActivity() {
         tvSelectedLocation = findViewById(R.id.tvSelectedLocation)
     }
 
-    private fun setupSpinner() {
+    private fun setupSpinners() {
         val petTypes = listOf("Kedi", "Köpek", "Kuş", "Balık", "Diğer")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, petTypes)
-        spType.adapter = adapter
+        val typeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, petTypes)
+        spType.adapter = typeAdapter
+
+        val petGenders = listOf("Dişi", "Erkek")
+        val genderAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, petGenders)
+        spGender.adapter = genderAdapter
     }
 
     private fun setupListeners() {
@@ -108,21 +113,11 @@ class AddPetActivity : AppCompatActivity() {
             return
         }
 
-        if (selectedImageUri == null) {
-            Toast.makeText(this, "Lütfen bir fotoğraf seçin.", Toast.LENGTH_SHORT).show()
+        if (selectedImageUri == null || etName.text.isBlank() || etCity.text.isBlank()) {
+            Toast.makeText(this, "İsim, Şehir ve Fotoğraf alanları zorunludur.", Toast.LENGTH_SHORT).show()
             return
         }
         
-        if (selectedLat == null || selectedLng == null) {
-            Toast.makeText(this, "Lütfen haritadan bir konum seçin.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (etName.text.isBlank() || etCity.text.isBlank()) {
-            Toast.makeText(this, "İsim ve Şehir alanları zorunludur.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         Toast.makeText(this, "İlan yükleniyor, lütfen bekleyin...", Toast.LENGTH_LONG).show()
         btnSave.isEnabled = false
 
@@ -142,25 +137,26 @@ class AddPetActivity : AppCompatActivity() {
     }
 
     private fun savePetToFirestore(userId: String, imageUrl: String) {
-        val petId = db.collection("pets").document().id
-        
+        val newPetRef = db.collection("pets").document()
+
         val newPet = Pet(
-            id = petId,
+            id = newPetRef.id, // ID'yi buradan alıyoruz
             ownerId = userId,
             petName = etName.text.toString().trim(),
             type = spType.selectedItem.toString(),
+            gender = spGender.selectedItem.toString(),
             breed = etBreed.text.toString().trim(),
             age = etAge.text.toString().toIntOrNull() ?: 0,
             description = etDesc.text.toString().trim(),
             city = etCity.text.toString().trim(),
             imageUrl = imageUrl,
-            lat = selectedLat,
-            lng = selectedLng,
+            lat = selectedLat ?: 0.0,
+            lng = selectedLng ?: 0.0,
             status = "pending_approval",
             timestamp = System.currentTimeMillis()
         )
 
-        db.collection("pets").document(petId).set(newPet)
+        newPetRef.set(newPet)
             .addOnSuccessListener {
                 Toast.makeText(this, "İlanınız onaya gönderildi.", Toast.LENGTH_LONG).show()
                 finish()

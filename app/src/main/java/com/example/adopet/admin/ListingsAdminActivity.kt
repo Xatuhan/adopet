@@ -32,7 +32,7 @@ class ListingsAdminActivity : AppCompatActivity() {
 
         binding.titleText.text = "Tüm İlanları Yönet"
 
-        // RecyclerView'ı yeni ve doğru adaptörle kuruyoruz
+
         adapter = ListingsAdapter(
             allPetsList,
             onEdit = { pet -> showEditDialog(pet) },

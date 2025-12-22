@@ -3,9 +3,10 @@ package com.example.adopet
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -13,14 +14,15 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
 
-    // Tüm EditText alanlarını tanımla
-    private lateinit var etName: EditText
-    private lateinit var etSurname: EditText
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var etPhone: EditText
-    private lateinit var etCity: EditText
+    // DÜZELTİLDİ: Yeni arayüzdeki TÜM alanlar
+    private lateinit var etName: TextInputEditText
+    private lateinit var etSurname: TextInputEditText
+    private lateinit var etEmail: TextInputEditText
+    private lateinit var etPassword: TextInputEditText
+    private lateinit var etPhone: TextInputEditText
+    private lateinit var etCity: TextInputEditText
     private lateinit var btnRegister: Button
+    private lateinit var btnGoLogin: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +30,7 @@ class RegisterActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Arayüz elemanlarını bağla
+        // DÜZELTİLDİ: Yeni arayüzdeki TÜM ID'lere göre bağlama
         etName = findViewById(R.id.etName)
         etSurname = findViewById(R.id.etSurname)
         etEmail = findViewById(R.id.etEmail)
@@ -36,10 +38,10 @@ class RegisterActivity : AppCompatActivity() {
         etPhone = findViewById(R.id.etPhone)
         etCity = findViewById(R.id.etCity)
         btnRegister = findViewById(R.id.btnRegister)
+        btnGoLogin = findViewById(R.id.btnGoLogin)
 
-        btnRegister.setOnClickListener {
-            registerUser()
-        }
+        btnRegister.setOnClickListener { registerUser() }
+        btnGoLogin.setOnClickListener { finish() }
     }
 
     private fun isValidEmail(email: String): Boolean {
@@ -47,6 +49,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser() {
+        // DÜZELTİLDİ: Yeni alanlardan veriyi al
         val name = etName.text.toString().trim()
         val surname = etSurname.text.toString().trim()
         val email = etEmail.text.toString().trim()
@@ -54,7 +57,6 @@ class RegisterActivity : AppCompatActivity() {
         val phone = etPhone.text.toString().trim()
         val city = etCity.text.toString().trim()
 
-        // Gerekli alanların kontrolü
         if (name.isEmpty() || surname.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Ad, Soyad, E-posta ve Şifre alanları zorunludur.", Toast.LENGTH_LONG).show()
             return
@@ -70,31 +72,29 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        // Adım 1: Firebase Authentication ile kullanıcı oluştur
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
-                val firebaseUser = authResult.user
-                if (firebaseUser == null) {
-                    Toast.makeText(this, "Kullanıcı oluşturulamadı, lütfen tekrar deneyin.", Toast.LENGTH_LONG).show()
-                    return@addOnSuccessListener
-                }
+                val firebaseUser = authResult.user ?: return@addOnSuccessListener
 
-                // Adım 2: Standart User modelini kullanarak bir nesne oluştur
+
                 val newUser = User(
                     uid = firebaseUser.uid,
                     email = email,
                     name = name,
                     surname = surname,
                     phone = phone,
-                    city = city
+                    city = city,
+                    district = "",
+                    profileImageUrl = "",
+                    favoritePetIds = emptyList(),
+                    isActive = true
                 )
 
-                // Adım 3: Bu nesneyi Firestore'a kaydet
                 db.collection("users").document(firebaseUser.uid).set(newUser)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Hesap başarıyla oluşturuldu!", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, HomeActivity::class.java))
-                        finishAffinity() // Tüm geçmiş aktiviteleri temizle
+                        finishAffinity()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Profil bilgileri kaydedilemedi: ${e.message}", Toast.LENGTH_LONG).show()

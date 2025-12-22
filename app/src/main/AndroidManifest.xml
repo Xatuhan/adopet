@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.adopet">
+    >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo_adopet" 
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo_adopet" 
         android:supportsRtl="true"
         android:theme="@style/Theme.Adopet">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_MAPS_API_KEY_HERE" />
+            android:value="${maps_api_key}" />
 
-        <!-- User-facing Activities -->
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".SplashActivity" android:exported="true" android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name=".RegisterActivity" android:exported="false" />
         <activity android:name=".HomeActivity" android:exported="false" />
         <activity android:name=".ProfileActivity" android:exported="false" />
@@ -40,7 +42,7 @@
         <activity android:name=".PetDetailActivity" android:exported="false" />
         <activity android:name=".RequestsActivity" android:exported="false" />
         <activity android:name=".ChatbotActivity" android:exported="false" />
-        <activity android:name=".FavoritesActivity" android:exported="false" /> <!-- YENİ EKLENDİ -->
+        <activity android:name=".FavoritesActivity" android:exported="false" />
 
         <!-- Admin Activities -->
         <activity android:name=".admin.AdminPanelActivity" />
