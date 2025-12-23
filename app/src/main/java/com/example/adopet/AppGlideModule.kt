@@ -13,11 +13,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 import okhttp3.OkHttpClient
 
-/**
- * Glide'ın ağ istekleri için kullandığı OkHttpClient'ı yapılandıran özel bir AppGlideModule.
- * Bu modül, SSL sertifika doğrulamalarını atlayan bir OkHttpClient oluşturur.
- * UYARI: Bu, yalnızca geliştirme ortamları için güvenlidir. Asla production'da kullanmayın.
- */
+
 @GlideModule
 class MyAppGlideModule : AppGlideModule() {
 

@@ -9,8 +9,8 @@ import com.example.adopet.databinding.ItemAdminRowBinding
 
 class ListingsAdapter(
     private val items: List<Pet>,
-    private val onEdit: (Pet) -> Unit, // onApprove -> onEdit
-    private val onDelete: (Pet) -> Unit  // onReject -> onDelete
+    private val onEdit: (Pet) -> Unit,
+    private val onDelete: (Pet) -> Unit
 ) : RecyclerView.Adapter<ListingsAdapter.VH>() {
 
     class VH(val b: ItemAdminRowBinding) : RecyclerView.ViewHolder(b.root)

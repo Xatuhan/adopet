@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     android:background="#F9F9F9"
     tools:context=".HomeActivity">
-
-    <!-- Üst Başlık Bölümü -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_profile_icon"
         android:layout_width="48dp"
@@ -39,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="10dp"
-            android:src="@drawable/ic_chatbot" 
+            android:src="@drawable/ic_chatbot"
             app:tint="@color/adopet_orange" />
     </com.google.android.material.card.MaterialCardView>
 

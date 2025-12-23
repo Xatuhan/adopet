@@ -41,13 +41,11 @@ class MapSelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setupMap() {
-        // AddPetActivity'den gelen il / ilçe ile haritayı ortala
         centerMapBasedOnIntent()
 
-        // Haritaya uzun basıldığında işaretçi ekle
         mMap.setOnMapLongClickListener { latLng ->
             selectedLatLng = latLng
-            mMap.clear() // Önceki işaretçileri temizle
+            mMap.clear()
             mMap.addMarker(MarkerOptions().position(latLng).title("Seçilen Konum"))
             Toast.makeText(this, "Konum seçildi!", Toast.LENGTH_SHORT).show()
         }
@@ -88,6 +86,6 @@ class MapSelectLocationActivity : AppCompatActivity(), OnMapReadyCallback {
         resultIntent.putExtra("latitude", selectedLatLng!!.latitude)
         resultIntent.putExtra("longitude", selectedLatLng!!.longitude)
         setResult(Activity.RESULT_OK, resultIntent)
-        finish() // Bu aktiviteyi kapat ve sonucu AddPetActivity'ye gönder
+        finish()
     }
 }

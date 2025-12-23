@@ -30,7 +30,7 @@ class AdminRequestsActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         requestsAdapter = RequestsAdapter(
             pendingRequestsList,
-            isIncoming = true, // Admin view, so all are treat as incoming to show buttons
+            isIncoming = true,
             onAccept = { request -> acceptRequest(request) },
             onReject = { request -> rejectRequest(request) }
         )
@@ -66,22 +66,18 @@ class AdminRequestsActivity : AppCompatActivity() {
     private fun acceptRequest(request: AdoptionRequest) {
         val batch = db.batch()
 
-        // 1. Update the pet's status to "adopted"
         val petRef = db.collection("pets").document(request.petId)
         batch.update(petRef, "status", "adopted")
 
-        // 2. Update the accepted request's status to "accepted"
         val acceptedRequestRef = db.collection("adoption_requests").document(request.id)
         batch.update(acceptedRequestRef, "status", "accepted")
 
-        // 3. Find and reject all other pending requests for the same pet
         db.collection("adoption_requests")
             .whereEqualTo("petId", request.petId)
             .whereEqualTo("status", "pending")
             .get()
             .addOnSuccessListener { otherRequestsSnapshot ->
                 for (document in otherRequestsSnapshot) {
-                    // Exclude the one we just accepted
                     if (document.id != request.id) {
                         batch.update(document.reference, "status", "rejected")
                     }

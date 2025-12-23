@@ -11,7 +11,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-// 1. Gelen Verinin Kalıbı (Data Models)
+
 data class WeatherResponse(
     val main: MainInfo,
     val weather: List<WeatherInfo>,
@@ -28,23 +28,23 @@ data class WeatherInfo(
     val icon: String
 )
 
-// DÜZELTİLDİ: Bağlantı Arayüzü (Interface)
+
 interface WeatherApi {
     @GET("data/2.5/weather")
     fun getWeatherByLocation(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("appid") apiKey: String,
-        @Query("units") units: String = "metric", // Santigrat için
-        @Query("lang") lang: String = "tr"        // Türkçe cevap için
+        @Query("units") units: String = "metric",
+        @Query("lang") lang: String = "tr"
     ): Call<WeatherResponse>
 }
 
-// DÜZELTİLDİ: Retrofit Client
+
 object WeatherClient {
     private const val BASE_URL = "https://api.openweathermap.org/"
 
-    // UYARI: Bu, SSL sertifika doğrulamalarını atlar. Sadece geliştirme için!
+
     private val unsafeOkHttpClient: OkHttpClient
         get() {
             try {
@@ -69,7 +69,7 @@ object WeatherClient {
     val api: WeatherApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(unsafeOkHttpClient) // Güvenli olmayan client eklendi
+            .client(unsafeOkHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherApi::class.java)

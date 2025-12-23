@@ -29,7 +29,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mMap.setOnInfoWindowClickListener(this) // Set the listener for info window clicks
+        mMap.setOnInfoWindowClickListener(this)
 
         val turkey = LatLng(39.0, 35.0)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(turkey, 5f))
@@ -53,7 +53,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnInfoWin
                                 .title(pet.petName)
                                 .snippet(pet.type)
                         )
-                        // Store the Pet ID in the marker's tag for later retrieval
                         marker?.tag = pet.id
                     }
                 }

@@ -49,7 +49,6 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerUser() {
-        // DÜZELTİLDİ: Yeni alanlardan veriyi al
         val name = etName.text.toString().trim()
         val surname = etSurname.text.toString().trim()
         val email = etEmail.text.toString().trim()

@@ -22,7 +22,7 @@ class ListingsAdminActivity : AppCompatActivity() {
     private val allPetsList = mutableListOf<Pet>()
     private lateinit var adapter: ListingsAdapter
 
-    // İlan durumları için bir liste
+
     private val statusOptions = listOf("pending_approval", "approved", "rejected", "adopted")
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,10 +66,10 @@ class ListingsAdminActivity : AppCompatActivity() {
         val etPetName = dialogView.findViewById<EditText>(R.id.etPetName)
         val spStatus = dialogView.findViewById<Spinner>(R.id.spStatus)
 
-        // Mevcut bilgileri doldur
+
         etPetName.setText(pet.petName)
         
-        // Spinner'ı ayarla
+
         val statusAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, statusOptions)
         spStatus.adapter = statusAdapter
         val currentStatusPosition = statusOptions.indexOf(pet.status)

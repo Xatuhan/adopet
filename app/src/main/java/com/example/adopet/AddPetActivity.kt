@@ -140,7 +140,7 @@ class AddPetActivity : AppCompatActivity() {
         val newPetRef = db.collection("pets").document()
 
         val newPet = Pet(
-            id = newPetRef.id, // ID'yi buradan alıyoruz
+            id = newPetRef.id,
             ownerId = userId,
             petName = etName.text.toString().trim(),
             type = spType.selectedItem.toString(),

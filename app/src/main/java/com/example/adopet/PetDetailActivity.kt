@@ -77,7 +77,7 @@ class PetDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.tvPetName.text = pet.petName
         binding.chipGender.text = "Cinsiyet: ${pet.gender}"
         binding.chipBreed.text = "Irk: ${pet.breed}"
-        binding.chipAge.text = "Yaş: ${pet.age} aylık"
+        binding.chipAge.text = "Yaş: ${pet.age} Yasinda"
         binding.tvDescription.text = pet.description
 
         if (pet.latitude != 0.0 && pet.longitude != 0.0) {
@@ -91,7 +91,7 @@ class PetDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (pet.imageUrl.isNotBlank()) {
             GlideApp.with(this).load(pet.imageUrl).into(binding.ivPetPhoto)
-        } 
+        }
 
         if (currentUser?.uid == pet.ownerId) {
             binding.btnRequestAdoption.visibility = android.view.View.GONE
@@ -145,10 +145,74 @@ class PetDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this, "Hata: Favori güncellenemedi.", Toast.LENGTH_SHORT).show()
             }
     }
-
     private fun createAdoptionRequest() {
-        // ... (Mevcut kod değişmedi)
+        if (currentUser == null || petId == null) {
+            Toast.makeText(this, "Giriş yapmalısınız.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (currentPet == null) {
+            Toast.makeText(this, "İlan bilgisi yükleniyor, tekrar deneyin.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (currentPet?.ownerId == currentUser.uid) {
+            Toast.makeText(this, "Kendi ilanınıza başvuramazsınız.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Butonu hemen devre dışı bırakarak çift tıklamayı engelle
+        binding.btnRequestAdoption.isEnabled = false
+
+        val requestDocId = "${petId!!}_${currentUser.uid}"
+        val reqRef = db.collection("adoption_requests").document(requestDocId)
+
+        reqRef.get()
+            .addOnSuccessListener { existingDocument ->
+                if (existingDocument.exists()) {
+                    val status = existingDocument.getString("status") ?: "pending"
+                    val msg = when (status) {
+                        "pending" -> "Bu ilana zaten istek gönderdiniz (Beklemede)."
+                        "accepted" -> "Bu ilan için isteğiniz zaten onaylandı ✅"
+                        "rejected" -> "Bu ilan için isteğiniz reddedilmiş."
+                        else -> "Bu ilana zaten istek gönderdiniz."
+                    }
+                    Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                    binding.btnRequestAdoption.text = "İstek Gönderildi"
+                    return@addOnSuccessListener
+                }
+
+                val requesterName = currentUser.displayName?.takeIf { it.isNotBlank() } ?: "İsimsiz Kullanıcı"
+
+                val newRequest = AdoptionRequest(
+                    id = requestDocId,
+                    petId = currentPet!!.id,
+                    petName = currentPet!!.petName,
+                    petImageUrl = currentPet!!.imageUrl,
+                    ownerId = currentPet!!.ownerId,
+                    requesterId = currentUser.uid,
+                    requesterName = requesterName,
+                    status = "pending",
+
+                    participantIds = listOf(currentUser.uid, currentPet!!.ownerId)
+
+                )
+
+                reqRef.set(newRequest)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Sahiplenme isteğiniz başarıyla gönderildi!", Toast.LENGTH_LONG).show()
+                        binding.btnRequestAdoption.text = "İstek Gönderildi"
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "HATA: Talep oluşturulamadı: ${e.message}", Toast.LENGTH_SHORT).show()
+                        binding.btnRequestAdoption.isEnabled = true // Butonu tekrar aktif et
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "HATA: Talep kontrol edilemedi: ${e.message}", Toast.LENGTH_LONG).show()
+                binding.btnRequestAdoption.isEnabled = true // Butonu tekrar aktif et
+            }
     }
+
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap

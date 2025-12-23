@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
 
-    // DÜZELTİLDİ: Yeni arayüzdeki elemanlara göre tanımlamalar
+
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: Button
@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Şifremi Unuttum")
 
-        // Bu dialog için ayrı bir layout dosyası kullanmıştık, o aynı kalabilir.
         val view = layoutInflater.inflate(R.layout.dialog_forgot_password, null)
         val etEmailDialog = view.findViewById<EditText>(R.id.etEmailDialog)
         builder.setView(view)

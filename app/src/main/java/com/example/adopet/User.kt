@@ -15,11 +15,9 @@ data class User(
     val profileImageUrl: String = "",
     val favoritePetIds: List<String> = emptyList(),
 
-    // DÜZELTİLDİ: Firestore'daki 'active' alanı ile eşleştirildi.
     @get:PropertyName("active")
     val isActive: Boolean = true,
 
-    // DÜZELTİLDİ: Çökmeyi önlemek için Timestamp ile uyumlu Date? kullanıldı.
     @ServerTimestamp
     val createdAt: Date? = null,
     @ServerTimestamp

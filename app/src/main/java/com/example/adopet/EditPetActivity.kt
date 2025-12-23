@@ -104,7 +104,7 @@ class EditPetActivity : AppCompatActivity() {
             if (newImageUri != null) {
                 uploadImageAndUpdatePet()
             } else {
-                // Otherwise, just update the data with the existing image URL
+
                 updatePetData(existingImageUrl ?: "")
             }
         }
@@ -128,7 +128,6 @@ class EditPetActivity : AppCompatActivity() {
     }
 
     private fun updatePetData(imageUrl: String) {
-        // Create a map with the correct, consistent field names
         val updates = mapOf(
             "petName" to etName.text.toString().trim(),
             "breed" to etBreed.text.toString().trim(),

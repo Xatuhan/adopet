@@ -97,7 +97,6 @@ class FavoritesActivity : AppCompatActivity() {
             return
         }
 
-        // whereIn limiti için 10'luk parçalara böl
         val chunks = cleanedIds.chunked(10)
 
         val allPets = mutableListOf<Pet>()
@@ -105,7 +104,7 @@ class FavoritesActivity : AppCompatActivity() {
         var anyFail = false
 
         chunks.forEach { chunk ->
-            db.collection("pets") // ✅ doğru koleksiyon
+            db.collection("pets")
                 .whereEqualTo("status", "approved")
                 .whereIn(FieldPath.documentId(), chunk)
                 .get()
@@ -124,11 +123,10 @@ class FavoritesActivity : AppCompatActivity() {
                     pending--
                     if (pending == 0) {
                         if (anyFail) {
-                            // en azından logtan yakalarsın
                             Log.e("FavoritesActivity", "Bazı favoriler çekilemedi, loga bak.")
                         }
 
-                        // favoritePetIds sırasını koru + ters çevir (son eklenen başta)
+
                         val map = allPets.associateBy { it.id }
                         val sorted = cleanedIds.mapNotNull { map[it] }.reversed()
 
