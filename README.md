@@ -1,114 +1,93 @@
-🐾 Adopet
+# 🐾 Adopet
+**Mobile Pet Adoption and Tracking Platform**
 
-Mobil Evcil Hayvan Sahiplendirme ve Takip Platformu
+Adopet is a modern Android application that brings pet adoption processes to mobile platforms, featuring a **Firebase-based architecture** with **multiple API and sensor integrations**.  
+The application is developed using the Kotlin programming language and up-to-date Android architecture principles.
 
-Adopet, evcil hayvan sahiplendirme süreçlerini mobil ortama taşıyan, Firebase tabanlı, çoklu API ve sensör entegrasyonuna sahip modern bir Android uygulamasıdır.
-Uygulama, Kotlin dili ve güncel Android mimarisi kullanılarak geliştirilmiştir.
+This project was developed by a **single developer** as a **personal portfolio project** focused on **academic coursework and internship applications**.
 
-Bu proje tek geliştirici tarafından, ders ve staj odaklı kişisel bir portföy çalışması olarak hazırlanmıştır.
+---
 
-🧠 Uygulama Ne Yapar?
+## 🧠 What Does the Application Do?
 
-Adopet’in temel amacı:
+The main purpose of Adopet is:
 
-Evcil hayvan sahiplendirme ilanlarının güvenli, filtrelenebilir ve konum tabanlı şekilde yönetilmesini sağlamak
+> **To manage pet adoption listings in a secure, filterable, and location-based manner**
 
-Uygulama ağırlıklı olarak şu işlevlere odaklanır:
+The application primarily focuses on the following functionalities:
 
-📋 Sahiplendirme ilanlarını listeleme ve filtreleme
+- 📋 Listing and filtering pet adoption posts  
+- ❤️ Adding listings to favorites  
+- ➕ Creating new listings (GPS-supported)  
+- 🗺️ Displaying listing locations on a map  
+- ☁️ Performing CRUD operations via Firebase Cloud Firestore  
 
-❤️ İlanları favorilere ekleme
+---
 
-➕ Yeni ilan oluşturma (GPS destekli)
+## 🚀 Features
 
-🗺️ İlan konumlarını harita üzerinde gösterme
+- 📱 Android application developed with Kotlin  
+- ☁️ Firebase Cloud Firestore (NoSQL – CRUD)  
+- 🔌 Integration of 2 Web APIs  
+- 📍 Location acquisition via GPS sensor  
+- 🗺️ Google Maps integration  
+- 🔄 Real-time data management  
+- 📦 High-performance listing with RecyclerView  
+- 🎨 Modern UI based on Material Design  
 
-☁️ Tüm verileri Firebase Cloud Firestore üzerinden CRUD işlemleriyle yönetme
+---
 
-Bu yapı sayesinde proje, istemci–bulut mimarisini, API yönetimini ve sensör entegrasyonunu pratik olarak göstermektedir.
+## 🛠️ Technologies Used
 
-🚀 Özellikler
+| Component | Technology |
+|------|---------|
+| Language | Kotlin |
+| Platform | Android |
+| Database | Firebase Cloud Firestore |
+| API | OpenWeatherMap, Google Maps / Geocoding |
+| Networking | Retrofit 2, Gson |
+| Asynchronous | Kotlin Coroutines |
+| Sensor | GPS |
+| UI | AndroidX, Material Design |
+| Image Loading | Glide / Picasso |
 
-📱 Kotlin ile geliştirilmiş Android uygulama
+---
 
-☁️ Firebase Cloud Firestore (NoSQL – CRUD)
+## 🔌 API & Sensor Integrations
 
-🔌 2 adet Web API entegrasyonu
+- 🌦️ **OpenWeatherMap API** – Provides weather data based on the user’s location  
+- 🗺️ **Google Maps / Geocoding API** – Displays listing locations on an interactive map  
+- 📍 **GPS Sensor** – Retrieves real-time coordinates while creating listings  
 
-📍 GPS sensörü ile konum alma
+📡 All API calls are executed **asynchronously** to ensure a smooth user experience.
 
-🗺️ Google Harita entegrasyonu
+---
 
-🔄 Gerçek zamanlı veri yönetimi
+## 🔄 Application Flow Diagram
 
-📦 RecyclerView ile performanslı listeleme
-
-🎨 Material Design tabanlı modern UI
-
-🛠️ Kullanılan Teknolojiler
-Bileşen	Teknoloji
-Dil	Kotlin
-Platform	Android
-Veritabanı	Firebase Cloud Firestore
-API	OpenWeatherMap, Google Maps / Geocoding
-Ağ	Retrofit 2, Gson
-Asenkron	Kotlin Coroutines
-Sensör	GPS
-UI	AndroidX, Material Design
-Görsel Yönetimi	Glide / Picasso
-🔌 API & Sensör Entegrasyonları
-
-🌦️ OpenWeatherMap API
-Kullanıcının bulunduğu konuma göre hava durumu verisi sağlar.
-
-🗺️ Google Maps & Geocoding API
-İlanlara ait konumların harita üzerinde görselleştirilmesini sağlar.
-
-📍 GPS Sensörü
-Yeni ilan oluşturulurken cihazdan anlık koordinat alınır.
-
-📡 Tüm API çağrıları asenkron olarak gerçekleştirilir ve UI thread’i bloklanmaz.
-
-🔄 Uygulama Akış Diyagramı (Flowchart)
-
-Aşağıdaki diyagram, kullanıcının uygulamaya girişinden ilan detayına kadar olan temel algoritmik akışı göstermektedir:
-
+```mermaid
 flowchart TD
-    A[Uygulama Başlatılır] --> B{Kullanıcı Giriş Yapmış mı?}
-    B -- Evet --> C[MainActivity Yüklenir]
-    B -- Hayır --> D[Login / Register]
+    A[Application Launched] --> B{Is the User Logged In?}
+    B -- Yes --> C[MainActivity]
+    B -- No --> D[Login / Register]
     D --> C
 
-    C --> E[Firestore'dan İlanları Çek]
-    E --> F[RecyclerView ile Listele]
+    C --> E[Fetch Listings from Firestore]
+    E --> F[Display with RecyclerView]
 
-    F --> G{Filtre Seçildi mi?}
-    G -- Evet --> H[Listeyi Filtrele]
-    G -- Hayır --> I[Listeyi Göster]
+    F --> G{Filter Selected?}
+    G -- Yes --> H[Filter Listings]
+    G -- No --> I[Show All Listings]
 
-    I --> J[İlan Seçildi]
+    I --> J[Listing Selected]
     J --> K[DetailActivity]
-    K --> L[Google Maps ile Konumu Göster]
+    K --> L[Show Location with Google Maps]
 
-    C --> M[İlan Ekle]
-    M --> N[GPS ile Konum Al]
-    N --> O[Firestore'a Kaydet]
+    C --> M[Add Listing]
+    M --> N[Get Location via GPS]
+    N --> O[Save to Firestore]
 
-
-Bu akış:
-
-Yetkilendirme kontrolü
-
-Veri okuma (READ)
-
-Veri oluşturma (CREATE)
-
-API ve sensör kullanımını
-
-net şekilde göstermektedir.
-
-
-📂 Proje Yapısı
+📂 Project Structure
 Adopet/
 │
 ├── app/
@@ -120,47 +99,31 @@ Adopet/
 ├── settings.gradle.kts
 └── gradle.properties
 
-⚙️ Kurulum
-git clone https://github.com/kullanici-adi/adopet.git
+⚙️ Installation
+git clone https://github.com/username/adopet.git
+Open the project with Android Studio
 
+Create a project in Firebase Console
 
-Android Studio ile projeyi aç
+Add the google-services.json file to the app/ directory
 
-Firebase Console üzerinden proje oluştur
+Enable Firestore
 
-google-services.json dosyasını app/ klasörüne ekle
+Run the application
 
-Firestore’u aktif hale getir
+🎯 Project Purpose
+This project aims to:
 
-Uygulamayı çalıştır
+Gain hands-on experience with modern Android development
 
-🎯 Proje Amacı
+Implement Firebase and API integrations
 
-Bu proje ile amaçlanan:
+Present a strong portfolio project for internships and academic evaluations
 
-Modern Android mimarisini öğrenmek
-
-Firebase ile gerçek zamanlı veri yönetimini uygulamak
-
-API ve sensör entegrasyonlarını pratikte göstermek
-
-Staj ve akademik değerlendirmelerde güçlü bir portföy sunmak
-
-🧭 Gelecek Geliştirmeler
-
-🔔 Firebase Cloud Messaging (FCM)
-
-🖼️ Firebase Storage ile görsel yükleme
-
-📍 Gelişmiş konum bazlı arama
-
-💬 Gerçek zamanlı mesajlaşma
-
-👤 Geliştirici
-
+👤 Developer
 Batuhan Gürsoy
-Bilişim Sistemleri Mühendisliği Öğrencisi
+Information Systems Engineering Student
 
-📄 Lisans
+📄 License
+This project is intended for educational and personal use only.
 
-Bu proje eğitim ve kişisel kullanım amaçlıdır.
