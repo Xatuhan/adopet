@@ -63,29 +63,8 @@ The application primarily focuses on the following functionalities:
 
 ---
 
-## 🔄 Application Flow Diagram
+<img width="526" height="835" alt="image" src="https://github.com/user-attachments/assets/f25d18e4-c8f6-44c1-83c1-d30503845997" />
 
-```mermaid
-flowchart TD
-    A[Application Launched] --> B{Is the User Logged In?}
-    B -- Yes --> C[MainActivity]
-    B -- No --> D[Login / Register]
-    D --> C
-
-    C --> E[Fetch Listings from Firestore]
-    E --> F[Display with RecyclerView]
-
-    F --> G{Filter Selected?}
-    G -- Yes --> H[Filter Listings]
-    G -- No --> I[Show All Listings]
-
-    I --> J[Listing Selected]
-    J --> K[DetailActivity]
-    K --> L[Show Location with Google Maps]
-
-    C --> M[Add Listing]
-    M --> N[Get Location via GPS]
-    N --> O[Save to Firestore]
 
 📂 Project Structure
 Adopet/
