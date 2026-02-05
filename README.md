@@ -67,42 +67,42 @@ The application primarily focuses on the following functionalities:
 
 
 📂 Project Structure
-Adopet/
-│
-├── app/
-│   ├── src/
-│   └── build.gradle.kts
-│
-├── firestore.rules
-├── build.gradle.kts
-├── settings.gradle.kts
-└── gradle.properties
+  Adopet/
+  │
+  ├── app/
+  │   ├── src/
+  │   └── build.gradle.kts
+  │
+  ├── firestore.rules
+  ├── build.gradle.kts
+  ├── settings.gradle.kts
+  └── gradle.properties
 
 ⚙️ Installation
-git clone https://github.com/username/adopet.git
-Open the project with Android Studio
+  git clone https://github.com/username/adopet.git
+  Open the project with Android Studio
 
-Create a project in Firebase Console
-
-Add the google-services.json file to the app/ directory
-
-Enable Firestore
-
-Run the application
+  Create a project in Firebase Console
+  
+  Add the google-services.json file to the app/ directory
+  
+  Enable Firestore
+  
+  Run the application
 
 🎯 Project Purpose
-This project aims to:
+  This project aims to:
 
-Gain hands-on experience with modern Android development
+  Gain hands-on experience with modern Android development
 
-Implement Firebase and API integrations
+  Implement Firebase and API integrations
 
-Present a strong portfolio project for internships and academic evaluations
+  Present a strong portfolio project for internships and academic evaluations
 
 👤 Developer
-Batuhan Gürsoy
-Information Systems Engineering Student
+  Batuhan Gürsoy
+  Information Systems Engineering Student
 
 📄 License
-This project is intended for educational and personal use only.
+  This project is intended for educational and personal use only.
 
