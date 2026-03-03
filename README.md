@@ -90,14 +90,6 @@ The application primarily focuses on the following functionalities:
   
   Run the application
 
-🎯 Project Purpose
-  This project aims to:
-
-  Gain hands-on experience with modern Android development
-
-  Implement Firebase and API integrations
-
-  Present a strong portfolio project for internships and academic evaluations
 
 👤 Developer
   Batuhan Gürsoy
